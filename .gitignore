@@ -1,0 +1,8 @@
+FlameGraph/
+Experimentos/obj/
+Experimentos/manut
+
+Experimentos/*/obj/
+Experimentos/*/manut
+
+*.data
