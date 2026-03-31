@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import subprocess
+import os
 
 FLAMEGRAPH = "/home/getuio/Facul/TCC/FlameGraph"
-RUNS = 5
+RUNS = 3
 
 INSTANCES = [
     ("data/LTPMSP_01_00600_00165_00329.txt", "results/LTPMSP_01.svg"),
@@ -16,6 +17,11 @@ INSTANCES = [
 subprocess.run(["make", "profile"], check=True)
 
 for instance, svg in INSTANCES:
+    # Check if the result file already exists
+    if os.path.exists(svg):
+        print(f"\nSkipping {instance}, {svg} already exists.")
+        continue
+
     print(f"\n{instance} -> {svg}")
     perf_data = svg + ".data"
     subprocess.run(["perf", "record", "-g", "-F", "99", "-o", perf_data,

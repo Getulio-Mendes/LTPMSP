@@ -353,3 +353,33 @@ int descida_2opt(int n, vector<int> &s, vector<int> &s_ind) {
     }
     return fo;
 }
+
+int descida_2opt_randomica_t(int n, vector<int> &s, vector<int> &s_ind, int IterMax, float &t_init) {
+    int fo = jpa_inv(n, s, s_ind, 1);
+    int iter = 0;
+    float duracao = 0;
+    
+    while (iter < IterMax && duracao < n) { 
+        iter++;
+        duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
+        
+        // i is in [1, n-3]
+        int i = 1 + rand() % (n - 3); 
+        // j is in [i+1, n-2], meaning j is always > i
+        int j = i + 1 + rand() % (n - i - 2); 
+
+        // the +1 to include the j-th element)
+        reverse(s.begin() + i, s.begin() + j + 1);
+        
+        int fo_viz = jpa_inv(n, s, s_ind, 1);
+
+        if (fo_viz < fo) {
+            fo = fo_viz;
+            iter = 0;
+        } else {
+            reverse(s.begin() + i, s.begin() + j + 1);
+        }
+    }
+    
+    return fo;
+}

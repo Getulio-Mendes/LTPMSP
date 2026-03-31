@@ -28,7 +28,7 @@ int ILS(int n, vector<int> &s, vector<int> &s_ind,
 
     intermax = n*Itermax/100;
 
-    fo = descida_2opt(n, s, s_ind);
+    fo = descida_2opt_randomica_t(n, s, s_ind,n,t_init);
     s_star = s;
     s_base = s;
     iter = MelhorIter = duracao = 0;
@@ -56,7 +56,7 @@ int ILS(int n, vector<int> &s, vector<int> &s_ind,
           swap(s[i], s[j]);
 				}
 		  // fazer descida randomica
-      fo_2l = descida_2opt(n, s, s_ind);
+      fo_2l = descida_2opt_randomica_t(n, s, s_ind,n,t_init);
 		  if(fo_2l < fo){
 			//cout << "FO era: " << fo << " - Agora: " << fo_2l << endl;
 			fo = fo_2l;
