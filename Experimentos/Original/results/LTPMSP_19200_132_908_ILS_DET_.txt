@@ -1,0 +1,3 @@
+./data/LTPMSP_06_19200_00132_00908.txt
+Construtivo Tempo CPU (s): 68.9669
+67140;19208.41;2;115659

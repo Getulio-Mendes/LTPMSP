@@ -1,0 +1,10 @@
+./data/LTPMSP_01_01200_00186_00519.txt
+Construtivo Tempo CPU (s): 0.527348
+./data/LTPMSP_01_01200_00186_00519.txt
+Construtivo Tempo CPU (s): 0.534402
+./data/LTPMSP_01_01200_00186_00519.txt
+Construtivo Tempo CPU (s): 0.535122
+11001;27410.97;2;22944129
+./data/LTPMSP_01_01200_00186_00519.txt
+Construtivo Tempo CPU (s): 0.533481
+11043;30976.94;2;25812145
