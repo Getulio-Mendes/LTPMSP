@@ -383,3 +383,63 @@ int descida_2opt_randomica_t(int n, vector<int> &s, vector<int> &s_ind, int Iter
     
     return fo;
 }
+
+int descida_2opt_segmento_randomica_t(int n, vector<int> &s, vector<int> &s_ind, int IterMax, float &t_init) {
+    int fo = jpa_inv(n, s, s_ind, 1);
+    int iter = 0;
+    float duracao = 0;
+    
+    // Configuração do comprimento do segmento aletório
+    // entre 10% e 30% do número total de nodos 
+    int min_tam = max(3, (int)(0.1 * (n - 2)));
+    int max_tam = max(min_tam + 1, (int)(0.3 * (n - 2)));
+
+    // Assegurar restrição de limite
+    if (max_tam > n - 2) {
+        max_tam = n - 2;
+    }
+    if (min_tam > max_tam) {
+        min_tam = max_tam;
+    }
+
+    while (iter < IterMax && duracao < n) { 
+        iter++;
+        duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
+        
+        int tam_seg = min_tam + (rand() % (max_tam - min_tam + 1));
+        
+        // indice máximo = tamanho do veor - tamnho do segmento
+        int max_index = n - 1 - tam_seg; 
+        if (max_index < 1) continue;
+
+        int start_idx = 1 + rand() % max_index;
+        int end_idx = start_idx + tam_seg - 1;
+        
+        bool melhorou_segmento;
+        
+        // Busca do ótimo local para o segmento contínuo (First Improvement)
+        do {
+            melhorou_segmento = false;
+            
+            // Loop para avaliação de trocas 2-opt dentro dos limites especificados
+            for (int i = start_idx; i <= end_idx - 1; i++) {
+                for (int j = i + 1; j <= end_idx; j++) {
+                    
+                    reverse(s.begin() + i, s.begin() + j + 1);
+                    
+                    int fo_viz = jpa_inv(n, s, s_ind, 1);
+                    
+                    if (fo_viz < fo) {
+                        fo = fo_viz;
+                        melhorou_segmento = true;
+                    } else {
+                        // Reverte caso não tenha gerado melhora
+                        reverse(s.begin() + i, s.begin() + j + 1);
+                    }
+                }
+            }
+        } while (melhorou_segmento);
+    }
+    
+    return fo;
+}
