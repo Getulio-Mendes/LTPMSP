@@ -4,3 +4,9 @@ Construtivo Tempo CPU (s): 68.9669
 ./data/LTPMSP_06_19200_00132_00908.txt
 Construtivo Tempo CPU (s): 64.6289
 65930;19207.55;2;116393
+./data/LTPMSP_06_19200_00132_00908.txt
+Construtivo Tempo CPU (s): 68.9617
+67476;19210.87;2;106133
+./data/LTPMSP_06_19200_00132_00908.txt
+Construtivo Tempo CPU (s): 69.4962
+66521;19210.46;2;103325

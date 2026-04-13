@@ -82,6 +82,77 @@ int ILS(int n, vector<int> &s, vector<int> &s_ind,
     return fo;
 }
 
+int SmartILS(int n, vector<int> &s, vector<int> &s_ind,
+          int Itermax, //maximo de iteracoes na descida randomica
+          int nivel, // nro de vezes sem melhora em um dado nivel
+          int ILSmax,
+          vector< vector<float> > &atv,
+          int & num_iteracoes)
+{
+    vector<int> s_star, s_base;
+    int falhas_no_nivel, nivel_perturbacao, iter, MelhorIter, intermax, duracao;
+    int fo, fo_2l;
+    float t_init, t_atual;
+
+    t_init = clock();
+
+    intermax = n*Itermax/100;
+
+    fo = descida_2opt(n, s, s_ind,t_init);
+    s_star = s;
+    s_base = s;
+    iter = MelhorIter = duracao = 0;
+    
+    nivel_perturbacao = 1;
+    falhas_no_nivel = 0;
+
+    while(iter - MelhorIter < ILSmax && duracao < 3600){
+      iter++;
+      t_atual = clock();
+      duracao = ((t_atual-t_init)/CLOCKS_PER_SEC);
+      s = s_base;
+      
+      int ntrocasMax = nivel_perturbacao + 1;
+      int ntrocas = 0, i, j;
+      while (ntrocas < ntrocasMax){
+        ntrocas++;
+        // seleciona as posicoes das atividades para trocar*/
+        i = rand() % n;
+        do{
+          j = rand() % n;
+        }while (i == j);
+        // Faz o movimento*/
+        swap(s[i], s[j]);
+      }
+      
+      // fazer descida randomica
+      fo_2l = descida_2opt(n, s, s_ind,t_init);
+      
+      if(fo_2l < fo){
+          //cout << "FO era: " << fo << " - Agora: " << fo_2l << endl;
+          fo = fo_2l;
+          s_star = s;
+          s_base = s;
+          nivel_perturbacao = 1;
+          falhas_no_nivel = 0;
+          MelhorIter = iter;
+      } else if (falhas_no_nivel >= nivel) {
+          falhas_no_nivel = 1;
+          nivel_perturbacao++;
+      } else {
+          falhas_no_nivel++;
+      }
+    }
+
+    num_iteracoes = iter;
+
+    s = s_star;
+
+    //fo = calcula_fo(n,s,s_ind);
+    fo = jpa_inv(n,s,s_ind,1);
+
+    return fo;
+}
 
 int SimILS(int n, vector<int> &s, vector<int> &s_ind,
           int Itermax, //maximo de iteracoes na descida randomica baseado no percentual do n de atvs

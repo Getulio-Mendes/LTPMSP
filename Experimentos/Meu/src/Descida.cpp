@@ -326,7 +326,7 @@ int descida_randomica_t(int n, vector<int> &s, vector<int> &s_ind, int IterMax, 
   return fo;
 }
 
-int descida_2opt(int n, vector<int> &s, vector<int> &s_ind) {
+int descida_2opt(int n, vector<int> &s, vector<int> &s_ind, float &t_init) {
     int i, j, iter;
     int fo, fo_viz;
     float t_atual, duracao;
@@ -335,6 +335,9 @@ int descida_2opt(int n, vector<int> &s, vector<int> &s_ind) {
     fo = jpa_inv(n, s, s_ind, 1);
 
     for (int i = 1; i < n - 2; i++) {
+      duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
+      if (duracao >= 3600) return fo;
+
       for (int j = i + 1; j < n - 1; j++) {
         int start = min(i, j);
         int end = max(i, j);
@@ -359,7 +362,7 @@ int descida_2opt_randomica_t(int n, vector<int> &s, vector<int> &s_ind, int Iter
     int iter = 0;
     float duracao = 0;
     
-    while (iter < IterMax && duracao < n) { 
+    while (iter < IterMax && duracao < 3600) { 
         iter++;
         duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
         
@@ -402,7 +405,7 @@ int descida_2opt_segmento_randomica_t(int n, vector<int> &s, vector<int> &s_ind,
         min_tam = max_tam;
     }
 
-    while (iter < IterMax && duracao < n) { 
+    while (iter < IterMax && duracao < 3600) { 
         iter++;
         duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
         
@@ -420,6 +423,9 @@ int descida_2opt_segmento_randomica_t(int n, vector<int> &s, vector<int> &s_ind,
         // Busca do ótimo local para o segmento contínuo (First Improvement)
         do {
             melhorou_segmento = false;
+            
+            duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
+            if (duracao >= 3600) return fo;
             
             // Loop para avaliação de trocas 2-opt dentro dos limites especificados
             for (int i = start_idx; i <= end_idx - 1; i++) {

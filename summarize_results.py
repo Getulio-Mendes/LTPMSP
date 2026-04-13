@@ -140,13 +140,13 @@ def main():
 
     data = defaultdict(dict)
 
-    # 1. Baseline: Original
+    # Baseline: Original
     collect_results_for_algo('Original', original_dir, data)
 
-    # 2. Current version (only .txt files at the root of Meu/results)
+    # Current version (only .txt files at the root of Meu/results)
     collect_results_for_algo('Current', meu_dir, data)
 
-    # 3. Subdirectories in Meu/results are distinct algorithms
+    # Subdirectories in Meu/results are distinct algorithms
     if meu_dir.exists() and meu_dir.is_dir():
         for item in meu_dir.iterdir():
             if item.is_dir():
