@@ -133,6 +133,7 @@ def main():
 
 if __name__ == '__main__':
     try:
+        os.system("make clean && make")
         main()
     except KeyboardInterrupt:
         print('\nInterrupted by user')
