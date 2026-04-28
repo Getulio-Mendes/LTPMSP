@@ -291,7 +291,7 @@ int main(int argc, char **argv) {
       if(VarSimHeuristic>0){
         fo = SimILS(natv, s, s_ind,ItermaxRandom, NivelILS, ILSmax, VarSimHeuristic, atv, num_interacoes);
       }else{
-        fo = SmartILS(natv, s, s_ind,ItermaxRandom, NivelILS, ILSmax, atv, num_interacoes);
+        fo = LateAcceptanceILS(natv, s, s_ind,ItermaxRandom, NivelILS, ILSmax, atv, num_interacoes);
       };
       fim_CPU = clock();
       string t = to_string(i+1);

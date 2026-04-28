@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <climits>
 #include <algorithm>
 #include <random>
 #include <utility> //funcao swap (para versao anterior a C11 usar <algorithm>)
@@ -141,6 +142,100 @@ int SmartILS(int n, vector<int> &s, vector<int> &s_ind,
           nivel_perturbacao++;
       } else {
           falhas_no_nivel++;
+      }
+    }
+
+    num_iteracoes = iter;
+
+    s = s_star;
+
+    //fo = calcula_fo(n,s,s_ind);
+    fo = jpa_inv(n,s,s_ind,1);
+
+    return fo;
+}
+
+int LateAcceptanceILS(int n, vector<int> &s, vector<int> &s_ind,
+          int Itermax, //maximo de iteracoes na descida randomica
+          int nivel, // nro de vezes sem melhora em um dado nivel
+          int ILSmax,
+          vector< vector<float> > &atv,
+          int & num_iteracoes)
+{
+    vector<int> s_star, s_base, s_best_in_block;
+    int nivel_perturbacao, iter, MelhorIter, intermax, duracao;
+    int fo, fo_2l, fo_best_in_block;
+    float t_init, t_atual;
+
+    t_init = clock();
+
+    intermax = n*Itermax/100;
+
+    fo = descida_randomica_t(n, s, s_ind,intermax,t_init);
+    s_star = s;
+    s_base = s;
+    iter = MelhorIter = duracao = 0;
+    
+    nivel_perturbacao = 1;
+    
+    // Calcula tamanho do bloco para aceitação tardia
+    int block_size = max(1, ILSmax / 10);
+    int block_iter = 0;
+    fo_best_in_block = INT_MAX;
+
+    while(iter - MelhorIter < ILSmax && duracao < n){
+      iter++;
+      t_atual = clock();
+      duracao = ((t_atual-t_init)/CLOCKS_PER_SEC);
+      s = s_base;
+      
+      int ntrocasMax = nivel_perturbacao + 1;
+      int ntrocas = 0, i, j;
+      while (ntrocas < ntrocasMax){
+        ntrocas++;
+        // seleciona as posicoes das atividades para trocar*/
+        i = rand() % n;
+        do{
+          j = rand() % n;
+        }while (i == j);
+        // Faz o movimento*/
+        swap(s[i], s[j]);
+      }
+      
+      // fazer descida randomica
+      fo_2l = descida_randomica_t(n, s, s_ind,intermax,t_init);
+      
+      if(fo_2l < fo){
+          // MELHORA: volta ao comportamento padrão
+          fo = fo_2l;
+          s_star = s;
+          s_base = s;
+          nivel_perturbacao = 1;
+          MelhorIter = iter;
+          block_iter = 0;
+          fo_best_in_block = INT_MAX;
+      } else {
+          // PIORA OU IGUAL: aceitação tardia
+          
+          // Manter a melhor solução entre as soluções não melhoradas do bloco
+          if(block_iter == 0 || fo_2l < fo_best_in_block){
+              s_best_in_block = s;
+              fo_best_in_block = fo_2l;
+          }
+          
+          // Continuar explorando a partir da solução piorada (late acceptance)
+          s_base = s;
+          
+          // Ao final do bloco: preparar para próxima perturbação
+          if(block_iter >= block_size){
+              // Usar a melhor solução não melhorada como base
+              s_base = s_best_in_block;  
+              nivel_perturbacao++;
+              block_iter = 0;
+              fo_best_in_block = INT_MAX;
+          }
+          
+          block_iter++;
       }
     }
 
