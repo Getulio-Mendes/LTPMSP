@@ -314,7 +314,7 @@ int main(int argc, char **argv) {
       general[i].push_back((float)contador);
       
 
-      if(DISABLE_LOGGING) {
+      if(!DISABLE_LOGGING) {
         cout<<endl<<"FO: "<<fo<<endl;
         cout<<"Quant Atv Alocadas: "<<qatv<<" de "<<natv<<endl;
         cout<<"Quant Atv Nao Alocadas: "<<natv-qatv<<" de "<<natv<<endl;
@@ -335,7 +335,8 @@ int main(int argc, char **argv) {
         // append a summary line: Nome;fo;tempo;interacao
         // Nome: use the input file name (argv[1] stored in input_file)
         float tempo_exec = (float)(fim_CPU - inicio_CPU)/CLOCKS_PER_SEC;
-        append_result_line(solution_file, fo, tempo_exec,num_interacoes, contador);
+        if(!DISABLE_LOGGING)
+            append_result_line(solution_file, fo, tempo_exec,num_interacoes, contador);
 
         // cout<<endl<<"ARQUIVO GERADO->"<<i+1<<endl;
 

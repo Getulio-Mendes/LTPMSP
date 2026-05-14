@@ -21,8 +21,6 @@
 
 # EDIT THIS: Path to your executable
 EXE=./manut
-# EDIT THIS: Specify how parameters are given to your executable
-EXE_PARAMS="--input ${INSTANCE} --seed ${SEED} ${CONFIG_PARAMS}"
 
 error() {
     echo "`TZ=UTC date`: $0: error: $@"
@@ -41,6 +39,9 @@ CONFIG_PARAMS=$*
 if [ ! -x "$(command -v ${EXE})" ]; then
     error "${EXE}: not found or not executable (pwd: $(pwd))"
 fi
+# EDIT THIS: Specify how parameters are given to your executable
+EXE_PARAMS="--input ${INSTANCE} --seed ${SEED} ${CONFIG_PARAMS}"
+
 
 # # If the program just prints a number, we can use 'exec' to avoid creating
 # # another process, but there can be no other commands after exec, only exit.
