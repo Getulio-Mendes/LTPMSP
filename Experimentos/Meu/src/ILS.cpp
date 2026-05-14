@@ -88,7 +88,8 @@ int SmartILS(int n, vector<int> &s, vector<int> &s_ind,
           int nivel, // nro de vezes sem melhora em um dado nivel
           int ILSmax,
           vector< vector<float> > &atv,
-          int & num_iteracoes)
+          int & num_iteracoes,
+          const string &descida_tipo)
 {
     vector<int> s_star, s_base;
     int falhas_no_nivel, nivel_perturbacao, iter, MelhorIter, intermax, duracao;
@@ -99,7 +100,16 @@ int SmartILS(int n, vector<int> &s, vector<int> &s_ind,
 
     intermax = n*Itermax/100;
 
-    fo = descida_2opt_segmento_randomica_t(n, s, s_ind,intermax,t_init);
+    auto descida = [&]() {
+        if (descida_tipo == "completa")
+            return descida_2opt(n, s, s_ind, t_init);
+        else if (descida_tipo == "randomica")
+            return descida_2opt_randomica_t(n, s, s_ind, intermax, t_init);
+        else // default to segmento_randomica
+            return descida_2opt_segmento_randomica_t(n, s, s_ind, intermax, t_init);
+    };
+
+    fo = descida();
     s_star = s;
     s_base = s;
     iter = MelhorIter = duracao = 0;
@@ -126,8 +136,8 @@ int SmartILS(int n, vector<int> &s, vector<int> &s_ind,
         swap(s[i], s[j]);
       }
       
-      // fazer descida randomica
-      fo_2l = descida_2opt_segmento_randomica_t(n, s, s_ind,intermax,t_init);
+      // fazer descida escolhida
+      fo_2l = descida();
       
       if(fo_2l < fo){
           //cout << "FO era: " << fo << " - Agora: " << fo_2l << endl;
@@ -160,7 +170,8 @@ int LateAcceptanceILS(int n, vector<int> &s, vector<int> &s_ind,
           int nivel, // nro de vezes sem melhora em um dado nivel
           int ILSmax,
           vector< vector<float> > &atv,
-          int & num_iteracoes)
+          int & num_iteracoes,
+          const string &descida_tipo)
 {
     vector<int> s_star, s_base, s_best_in_block;
     int nivel_perturbacao, iter, MelhorIter, intermax, duracao;
@@ -171,7 +182,16 @@ int LateAcceptanceILS(int n, vector<int> &s, vector<int> &s_ind,
 
     intermax = n*Itermax/100;
 
-    fo = descida_randomica_t(n, s, s_ind,intermax,t_init);
+    auto descida = [&]() {
+        if (descida_tipo == "completa")
+            return descida_2opt(n, s, s_ind, t_init);
+        else if (descida_tipo == "segmento_randomica")
+            return descida_2opt_segmento_randomica_t(n, s, s_ind, intermax, t_init);
+        else // default to randomica
+            return descida_2opt_randomica_t(n, s, s_ind, intermax, t_init);
+    };
+
+    fo = descida();
     s_star = s;
     s_base = s;
     iter = MelhorIter = duracao = 0;
@@ -202,8 +222,8 @@ int LateAcceptanceILS(int n, vector<int> &s, vector<int> &s_ind,
         swap(s[i], s[j]);
       }
       
-      // fazer descida randomica
-      fo_2l = descida_randomica_t(n, s, s_ind,intermax,t_init);
+      // fazer descida escolhida
+      fo_2l = descida();
       
       if(fo_2l < fo){
           // MELHORA: volta ao comportamento padrão

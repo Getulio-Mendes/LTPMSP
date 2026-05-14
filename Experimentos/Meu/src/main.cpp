@@ -14,6 +14,7 @@
 #include "Util.h"
 #include "Descida.h"
 #include "ILS.h"
+#include "ArgParser.h"
 
 
 using namespace std; // usa a biblioteca std por padrao
@@ -59,13 +60,16 @@ int main(int argc, char **argv) {
     //     exit(0);
     // }
 
-    int ItermaxRandom = 40, VizRandom = 30, NivelILS = 15, ILSmax = 70;
-    float VarSimHeuristic = 0; 
+    AppArgs args = parseArgs(argc, argv);
+    int ItermaxRandom = args.itermax, VizRandom = 30, NivelILS = args.nivel, ILSmax = args.ilsmax;
+    float VarSimHeuristic = 0;
 
-    // ./manut input_file NumberExecutionILS
-    string input_file = argv[1];
-    sscanf(argv[2], "%d", &num_exec);
-    //string best_solution_file = argv[2];
+    num_exec = args.runs;
+    string input_file = args.input_file;
+    string algorithm_name = args.algorithm;
+    string descida_tipo = args.descida;
+
+    DISABLE_LOGGING = true;
 
 
 
@@ -81,7 +85,7 @@ int main(int argc, char **argv) {
     
 
     /* initialize random seed: */
-    srand (time(NULL));
+    srand(args.seed);
 
     //auxiliares para escolha da solu��o inicial
     vector<int> s_init;
@@ -242,17 +246,19 @@ int main(int argc, char **argv) {
     float construcao_time = (float) (fim_CPU - inicio_CPU)/CLOCKS_PER_SEC;
 
     string solution_file;
-    if(VarSimHeuristic>0){
-        solution_file = "./results/LTPMSP_"+to_string(natv)+"_"+to_string(nteam)+"_"+to_string(nmaq)+"_SIM_ILS_"+".txt";
+    if (!DISABLE_LOGGING) {
+        if(VarSimHeuristic>0){
+            solution_file = "./results/LTPMSP_"+to_string(natv)+"_"+to_string(nteam)+"_"+to_string(nmaq)+"_SIM_ILS_"+".txt";
+        }
+        else{
+            solution_file = "./results/LTPMSP_"+to_string(natv)+"_"+to_string(nteam)+"_"+to_string(nmaq)+"_ILS_DET_"+".txt";
+        }
+        ofstream file;
+        file.open(solution_file, ios::app);
+        file << input_file << endl;
+        file <<"Construtivo Tempo CPU (s): " << construcao_time << endl;
+        file.close();
     }
-    else{
-        solution_file = "./results/LTPMSP_"+to_string(natv)+"_"+to_string(nteam)+"_"+to_string(nmaq)+"_ILS_DET_"+".txt";
-    }
-    ofstream file;
-    file.open(solution_file, ios::app);
-    file << input_file << endl;
-    file <<"Construtivo Tempo CPU (s): " << construcao_time << endl;
-    file.close();
 
     /*
     cout<<endl<<"SOLUCAO INICIAL"<<endl;
@@ -272,13 +278,14 @@ int main(int argc, char **argv) {
 
 
     //ILS
-    //imprime dados
-    //cout <<"ItermaxRandom: "<<ItermaxRandom << endl; 
-    cout <<"NivelILS: "<<NivelILS << endl;
-    cout <<"ILSmax: "<<ILSmax << endl;
-    cout <<"VarSimHeuristic: "<<VarSimHeuristic << endl;
-
-    cout<<endl<<"METODO ILS"<<endl;
+    if(!DISABLE_LOGGING){
+        //imprime dados
+        //cout <<"ItermaxRandom: "<<ItermaxRandom << endl; 
+        cout <<"NivelILS: "<<NivelILS << endl;
+        cout <<"ILSmax: "<<ILSmax << endl;
+        cout <<"VarSimHeuristic: "<<VarSimHeuristic << endl;
+        cout<<endl<<"METODO ILS"<<endl;
+     }
 
     general.resize(num_exec);
 
@@ -287,15 +294,17 @@ int main(int argc, char **argv) {
     for (int i=0; i<num_exec; i++){
       s = s_init;
       fo = fo_init;
-      inicio_CPU = clock();
-      if(VarSimHeuristic>0){
-        fo = SimILS(natv, s, s_ind,ItermaxRandom, NivelILS, ILSmax, VarSimHeuristic, atv, num_interacoes);
-      }else{
-        fo = LateAcceptanceILS(natv, s, s_ind,ItermaxRandom, NivelILS, ILSmax, atv, num_interacoes);
-      };
+        inicio_CPU = clock();
+        if(VarSimHeuristic>0){
+            fo = SimILS(natv, s, s_ind,ItermaxRandom, NivelILS, ILSmax, VarSimHeuristic, atv, num_interacoes);
+        }else{
+            if(algorithm_name == "SmartILS"){
+                    fo = SmartILS(natv, s, s_ind,ItermaxRandom, NivelILS, ILSmax, atv, num_interacoes, descida_tipo);
+            }else{
+                    fo = LateAcceptanceILS(natv, s, s_ind,ItermaxRandom, NivelILS, ILSmax, atv, num_interacoes, descida_tipo);
+            }
+        };
       fim_CPU = clock();
-      string t = to_string(i+1);
-      string SimVar = to_string(VarSimHeuristic);                                                    
       col_ref=1;
       sort(s_atv.begin(), s_atv.end(), sortcol_decres);   
 
@@ -305,12 +314,15 @@ int main(int argc, char **argv) {
       general[i].push_back((float)contador);
       
 
-      
-      cout<<endl<<"FO: "<<fo<<endl;
-      cout<<"Quant Atv Alocadas: "<<qatv<<" de "<<natv<<endl;
-      cout<<"Quant Atv Nao Alocadas: "<<natv-qatv<<" de "<<natv<<endl;
-      cout<<"Quant Equipes Utilizadas: "<<qteam<<" de "<<nteam<<endl;
-      cout<<"Quantidade avaliacoes: "<<contador<<endl;
+      if(DISABLE_LOGGING) {
+        cout<<endl<<"FO: "<<fo<<endl;
+        cout<<"Quant Atv Alocadas: "<<qatv<<" de "<<natv<<endl;
+        cout<<"Quant Atv Nao Alocadas: "<<natv-qatv<<" de "<<natv<<endl;
+        cout<<"Quant Equipes Utilizadas: "<<qteam<<" de "<<nteam<<endl;
+        cout<<"Quantidade avaliacoes: "<<contador<<endl;
+ 
+      }
+      cout << fo << endl;
       
       
     //   if(VarSimHeuristic>0){

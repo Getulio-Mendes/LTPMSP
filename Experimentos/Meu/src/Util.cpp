@@ -16,6 +16,8 @@
 
 using namespace std;
 
+bool DISABLE_LOGGING = true;
+
 //exporta vetor de solucao geral
 
 void export_general (vector< vector<float> > &general, string solution){
@@ -35,6 +37,8 @@ void export_general (vector< vector<float> > &general, string solution){
 // append a single summary line to the solution file
 // format: ;fo;tempo;interacao;num_jpa_inv
 void append_result_line(const string &solution, int fo, float tempo, int interacao, int contador) {
+		if (DISABLE_LOGGING) return;
+		
 		// open in append mode so existing lines are preserved
 		ofstream file;
 		file.open(solution, ios::app);

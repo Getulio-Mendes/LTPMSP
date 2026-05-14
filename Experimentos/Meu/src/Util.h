@@ -17,6 +17,7 @@ void write(vector< vector<float> > &atv, vector< vector<float> > &team, vector< 
 
 //append a single summary line to an existing solution file in the format:
 // Nome;fo;tempo;interação  (appends one new line each call, preserves existing content)
+extern bool DISABLE_LOGGING;
 void append_result_line(const string &solution, int fo, float tempo, int interacao, int contador);
 
 

@@ -2,6 +2,7 @@
 #define _ILS_H_
 
 #include <vector>
+#include <string>
 using namespace std;
 
 
@@ -25,14 +26,16 @@ int SmartILS(int n, vector<int> &s, vector<int> &s_ind,
           int nivel, // nro de vezes sem melhora em um dado nivel
           int ILSmax,
           vector< vector<float> > &atv,
-          int & num_iteracoes);
+          int & num_iteracoes,
+          const string &descida_tipo);
 
 int LateAcceptanceILS(int n, vector<int> &s, vector<int> &s_ind,
           int Itermax, //maximo de iteracoes na descida randomica
           int nivel, // nro de vezes sem melhora em um dado nivel
           int ILSmax,
           vector< vector<float> > &atv,
-          int & num_iteracoes);
+          int & num_iteracoes,
+          const string &descida_tipo);
           
 int simulation (
 		int n, vector<int> &s, vector<int> &s_ind,
