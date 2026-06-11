@@ -431,6 +431,9 @@ int descida_2opt_segmento_randomica_t(int n, vector<int> &s, vector<int> &s_ind,
             for (int i = start_idx; i <= end_idx - 1; i++) {
                 for (int j = i + 1; j <= end_idx; j++) {
                     
+                    duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
+                    if (duracao >= 3600) return fo;
+                    
                     reverse(s.begin() + i, s.begin() + j + 1);
                     
                     int fo_viz = jpa_inv(n, s, s_ind, 1);

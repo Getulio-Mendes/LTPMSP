@@ -203,7 +203,7 @@ int LateAcceptanceILS(int n, vector<int> &s, vector<int> &s_ind,
     int block_iter = 0;
     fo_best_in_block = INT_MAX;
 
-    while(iter - MelhorIter < ILSmax && duracao < n){
+    while(iter - MelhorIter < ILSmax && duracao < 3600){
       iter++;
       t_atual = clock();
       duracao = ((t_atual-t_init)/CLOCKS_PER_SEC);
