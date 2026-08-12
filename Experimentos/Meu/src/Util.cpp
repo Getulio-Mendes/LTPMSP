@@ -16,7 +16,7 @@
 
 using namespace std;
 
-bool DISABLE_LOGGING = true;
+bool DISABLE_LOGGING = false;
 
 //exporta vetor de solucao geral
 

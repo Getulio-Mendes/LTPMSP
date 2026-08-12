@@ -88,7 +88,7 @@ def main():
     parser.add_argument('--binary', default='./manut', help='Path to the manut executable')
     parser.add_argument('--dry-run', action='store_true', help='Only print what would be run')
     parser.add_argument('--exit-on-error', action='store_true', help='Stop on first non-zero exit code')
-    parser.add_argument('--target', type=int, default=10, help='Target number of collections per instance')
+    parser.add_argument('--target', type=int, default=20, help='Target number of collections per instance')
     args = parser.parse_args()
 
     data_dir = args.data_dir

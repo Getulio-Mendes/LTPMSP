@@ -1,0 +1,6 @@
+./data/LTPMSP_06_33484_00145_01032.txt
+Construtivo Tempo CPU (s): 273.688
+./data/LTPMSP_06_33484_00145_01032.txt
+Construtivo Tempo CPU (s): 267.914
+./data/LTPMSP_06_33484_00145_01032.txt
+Construtivo Tempo CPU (s): 268.902

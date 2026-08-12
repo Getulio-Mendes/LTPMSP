@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     string algorithm_name = args.algorithm;
     string descida_tipo = args.descida;
 
-    DISABLE_LOGGING = true;
+    DISABLE_LOGGING = false;
 
 
 
@@ -320,9 +320,9 @@ int main(int argc, char **argv) {
         cout<<"Quant Atv Nao Alocadas: "<<natv-qatv<<" de "<<natv<<endl;
         cout<<"Quant Equipes Utilizadas: "<<qteam<<" de "<<nteam<<endl;
         cout<<"Quantidade avaliacoes: "<<contador<<endl;
- 
+      } else {
+        cout << fo << endl;
       }
-      cout << fo << endl;
       
       
     //   if(VarSimHeuristic>0){

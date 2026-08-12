@@ -85,8 +85,11 @@ def count_collected(data_dir, results_dir, instance_name):
 
 
 def run_instance(binary, instance_path, runs=10, dry_run=False):
-    cmd = [binary, instance_path]
-    cmd.append(str(runs))
+    cmd = [
+        binary,
+        "--input", instance_path,
+        "--runs", str(runs)
+    ]
     print(f"Running: {' '.join(cmd)}")
     if dry_run:
         return 0
