@@ -88,7 +88,7 @@ def run_instance(binary, instance_path, runs=10, dry_run=False):
     cmd = [
         binary,
         "--algorithm", "SmartILS",
-        "--descida", "randomica",
+        "--descida", "2opt_swap",
         "--itermax", "5",
         "--nivel", "10",
         "--ilsmax", "100",

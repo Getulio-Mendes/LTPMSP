@@ -7,3 +7,4 @@ Experimentos/*/manut
 
 *.data
 *.data.old
+.out/

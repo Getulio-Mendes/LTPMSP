@@ -1,0 +1,328 @@
+\documentclass{beamer}
+
+% Tema e estilo
+\usetheme{Darmstadt}
+\usefonttheme[onlylarge]{structurebold}
+\setbeamerfont*{frametitle}{size=\normalsize,series=\bfseries}
+
+% Idioma e codificação
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% Traduções manuais (para evitar babel no beamer)
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabela}
+\renewcommand{\contentsname}{Sumário}
+
+% Pacotes adicionais
+\usepackage{graphicx}
+\usepackage{times}
+\usepackage[algoruled,longend]{algorithm2e}
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+\usepackage{ragged2e}
+\usepackage{scalefnt}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+% Remover ícones de navegação
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamertemplate{footline}{
+  \leavevmode
+  \begin{beamercolorbox}[wd=\paperwidth,ht=0.25cm,dp=0.3cm,leftskip=0.5cm,rightskip=0.5cm]{author in head/foot}
+    \hbox to \paperwidth{%
+      \raisebox{-0.35cm}{\includegraphics[height=0.6cm]{Fig/cefet.png}}%
+      \hfill
+      \raisebox{-0.1cm}{\scriptsize Slide \insertframenumber{} de \inserttotalframenumber}%
+      \hspace{0.9cm}%
+    }%
+  \end{beamercolorbox}
+}
+
+% Título e informações
+\title[Resolução do LTPMSP via SmartILS]{Abordagem Meta-Heurística para o Problema de Agendamento de Manutenção Preventiva de Longo Prazo (LTPMSP)}
+\author[Apresentador]{Getúlio Santos Mendes - Orientador: Prof. Dr. Guido Pantuza}
+\institute{Centro Federal de Educação Tecnológica de Minas Gerais (CEFET-MG) - Campus Divinópolis - Engenharia de Computação}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}[plain]
+    \begin{center}
+        \includegraphics[height=2cm]{Fig/cefetmg.jpg}
+    \end{center}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Sumário}
+    \tableofcontents
+\end{frame}
+
+\section{Introdução}
+
+\begin{frame}{Contexto: Manutenção preventiva}
+    \begin{itemize}
+        \item \textbf{A Importância da Manutenção:} Falhas inesperadas em equipamentos industriais causam atrasos e grandes prejuízos financeiros.
+        \item \textbf{O Problema no Chão de Fábrica:}
+        \begin{itemize}
+            \item Falta de agendamento otimizado gera \textbf{ociosidade} e desperdício de equipes internas.
+            \item Tarefas não alocadas a tempo precisam ser \textbf{terceirizadas}, gerando custo extra elevado para as corporações.
+        \end{itemize}
+        \item \textbf{Objetivo Empresarial:} Minimizar custos aproveitando ao máximo a força de trabalho interna para concluir todas as manutenções necessárias no período.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{O Desafio Computacional: LTPMSP}
+    \begin{itemize}
+        \item O \textit{Long-Term Preventive Maintenance Scheduling Problem} (LTPMSP) busca o melhor agendamento possível dessas manutenções.
+        \item \textbf{Restrições e Características:}
+        \begin{itemize}
+            \item Janelas de tempo rígidas (data mínima de início e máxima de fim).
+            \item Requisitos restritos de compatibilidade entre habilidades técnicas das equipes e necessidades das tarefas.
+            \item Capacidade de horas-homem limitadas.
+        \end{itemize}
+        \item \textbf{Complexidade:} Classificado como NP-Difícil \cite{Brucker2007}, sua resolução por métodos exatos torna-se computacionalmente inviável no mundo real.
+    \end{itemize}
+\end{frame}
+
+\section{Fundamentação Teórica}
+
+\begin{frame}{Modelagem Matemática (Enxuta)}
+    O foco do modelo matemático PLIM é punir pesadamente a terceirização ($\omega_i$) e considerar os custos fixos das equipes internas ativadas ($\gamma_k$):
+    \vspace{0.3cm}
+    \begin{block}{Função Objetivo}
+        \[
+        \text{Minimizar } f(s) = \sum_{k \in W} \gamma_k \cdot z_k + \sum_{i \in T} \omega_i \cdot \left( 1 - \sum_{k \in W_i} y_{ik} \right)
+        \]
+    \end{block}
+    \vspace{0.1cm}
+    \textbf{Variáveis Principais:}
+    \begin{itemize}
+        \item $z_k$: Binária, se a equipe $k \in W$ foi ativada.
+        \item $y_{ik}$: Binária, se a tarefa $i \in T$ foi delegada à equipe $k$.
+    \end{itemize}
+    \vspace{0.1cm}
+    O modelo possui mais de 15 famílias de restrições (ex: precedência, não-sobreposição, janelas de tempo limitantes).
+\end{frame}
+
+\begin{frame}{Representação da Solução}
+    \begin{itemize}
+        \item Para as meta-heurísticas trabalharem rápido, usamos uma \textbf{representação indireta} em formato de permutação.
+        \item Uma solução $s$ não carrega horários, apenas uma \textbf{lista de prioridade} das tarefas:
+    \end{itemize}
+    \vspace{0.2cm}
+    \begin{center}
+        \LARGE
+        $s = \langle \text{T}_3, \text{T}_1, \text{T}_5, \text{T}_2, \dots, \text{T}_N \rangle$
+    \end{center}
+    \vspace{0.2cm}
+    \begin{itemize}
+        \item A responsabilidade de respeitar as restrições rígidas de tempo e alocação é delegada completamente ao \textbf{Decodificador} (Algoritmo Construtivo).
+    \end{itemize}
+\end{frame}
+
+\section{Metodologia}
+
+\begin{frame}{Decodificador: Inverted JPA}
+    \begin{columns}
+        \column{0.55\textwidth}
+        \begin{itemize}
+            \item Utilizou-se a implementação existente do Inverted JPA \cite{coelho2025simheuristic} para decodificar a permutação $s$ em um cronograma viável.
+            \item \textbf{Inverted:} Agrupa as tarefas \textbf{de trás para frente}, fixando o final da tarefa no final de sua janela de limite de tempo (Deadline).
+            \item Se não houver equipe e máquina simultaneamente disponíveis, a tarefa falha (Custo de terceirização $\omega_i$).
+        \end{itemize}
+        
+        \column{0.45\textwidth}
+        \begin{center}
+            \includegraphics[width=\textwidth]{../Imagens/inverted_jpa.png}
+        \end{center}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Objetivo Geral}
+    \begin{itemize}
+        \item Desenvolver algoritmos eficientes para o Problema de Planejamento de Manutenção Preventiva de Longo Prazo (LTPMSP) em sua forma determinística.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Objetivos Específicos}
+    \begin{itemize}
+        \item Revisar a literatura sobre o LTPMSP e métodos heurísticos.
+        \item Implementar e testar novas buscas locais.
+        \item Implementar meta-heurísticas baseadas em Busca Local Iterada (ILS).
+        \item Calibrar parâmetros das meta-heurísticas utilizando a ferramenta Irace \cite{lopez2016irace}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Meta-Heurística: SmartILS}
+    \begin{itemize}
+        \item O \textit{SmartILS} adapta inteligentemente a força da perturbação baseando-se no acúmulo consecutivo de falhas.
+        \item Quando não ocorre melhoria após várias iterações, a intensidade de perturbação aumenta dinamicamente.
+        \item Ao encontrar uma nova melhor solução, o sistema "recompensa" a busca reduzindo a perturbação para explorar os arredores do novo ótimo local.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{SmartILS: Pseudocódigo}
+    \begin{center}
+    \scriptsize
+        \begin{algorithm}[H]
+        Gerar solução inicial $s$\;
+        $s^* \leftarrow s$ (Solução incumbente)\;
+        \While{critérios de parada não forem atingidos}{
+            Obter solução $s'$ perturbando $s^*$ com a intensidade atual\;
+            Obter solução $s''$ a partir da vizinhança de $s'$ (\textit{2-opt})\;
+            \If{$f(s'') < f(s^*)$}{
+                $s^* \leftarrow s''$\;
+                \textbf{Reiniciar} intensidade de perturbação e contador de falhas\;
+            }
+            \Else{
+                \textbf{Incrementar} contador de falhas\;
+                \If{falhas atingirem o limite}{
+                    \textbf{Aumentar} intensidade da perturbação\;
+                    Zerar contador de falhas\;
+                }
+            }
+        }
+        \end{algorithm}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Meta-Heurística: LateAcceptanceILS}
+    \begin{itemize}
+        \item O \textit{LateAcceptanceILS} permite explorar novas regiões do espaço de busca aceitando temporariamente soluções piores.
+        \item As iterações da busca são estruturadas em \textbf{blocos}.
+        \item Ao final de um bloco sem melhoras, a melhor solução encontrada durante aquele período torna-se a nova base para as perturbações, e a intensidade da perturbação é aumentada.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{LateAcceptanceILS: Pseudocódigo}
+    \begin{center}
+    \scriptsize
+        \begin{algorithm}[H]
+        Gerar solução inicial $s$\;
+        $s^* \leftarrow s$; $s_{base} \leftarrow s$\;
+        \While{critérios de parada não forem atingidos}{
+            Obter $s'$ perturbando $s_{base}$ com a intensidade atual\;
+            Obter $s''$ a partir da vizinhança de $s'$ (\textit{2-opt})\;
+            \If{$f(s'') < f(s^*)$}{
+                $s^* \leftarrow s''$; $s_{base} \leftarrow s''$\;
+                \textbf{Reiniciar} intensidade de perturbação e contadores\;
+            }
+            \Else{
+                Registrar melhor solução encontrada no bloco\;
+                $s_{base} \leftarrow s''$ (Aceitação Tardia)\;
+                \If{tamanho do bloco atingido sem melhoras}{
+                    $s_{base} \leftarrow$ melhor solução do bloco\;
+                    \textbf{Aumentar} intensidade da perturbação\;
+                    \textbf{Reiniciar} contadores do bloco\;
+                }
+            }
+        }
+        \end{algorithm}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Busca Local: Movimento e Descidas 2-opt}
+    \begin{itemize}
+        \item O \textbf{movimento \textit{2-opt}} inverte subsegmentos contínuos da solução para gerar vizinhos, mantendo a estrutura de dependência original das tarefas de forma mais eficaz que trocas simples (\textit{swap}).
+        \vspace{0.3cm}
+        \item \textbf{Métodos de Descida avaliados:}
+        \begin{enumerate}
+            \item \textbf{Descida 2-opt Completa:} Avalia exaustivamente toda a vizinhança $O(n^2)$ iterativamente até atingir o ótimo local.
+            \item \textbf{Descida 2-opt Randômica:} Reversões aleatórias sob a regra de Primeira Melhoria (\textit{First Improvement}), focando em maior velocidade.
+            \item \textbf{Descida 2-opt de Segmento Randômico:} Varredura restrita apenas a blocos compreendidos entre 10\% e 30\% da permutação.
+        \end{enumerate}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Calibração com Irace}
+    \begin{itemize}
+        \item \textbf{Espaço de Busca de Parâmetros:} A ferramenta \texttt{irace} \cite{lopez2016irace} foi usada para testar sistematicamente combinações de parâmetros entre:
+        \begin{itemize}
+            \item \textbf{2 Meta-Heurísticas:} \textit{SmartILS} vs. \textit{LateAcceptanceILS}.
+            \item \textbf{3 Métodos de Descida 2-opt:} Completa, Randômica e Segmento Randômico.
+            \item \textbf{Parâmetros Numéricos:} Limite da busca local (\texttt{itermax}), limite global (\texttt{ilsmax}) e nível de tolerância à estagnação (\texttt{nivel}).
+        \end{itemize}
+        \vspace{0.3cm}
+        \item \textbf{Instâncias de Calibração:} Foram selecionadas \textbf{três instâncias} representativas de médio a grande porte da literatura
+        \vspace{0.3cm}
+        \item \textbf{Combinação vencedora:} \textit{SmartILS} Descida 2-opt Randômica, \texttt{itermax} = 5, \texttt{nivel} = 10, e \texttt{ilsmax} = 100
+    \end{itemize}
+\end{frame}
+
+\section{Resultados e Conclusão}
+
+\begin{frame}{Resultados Parciais}
+    \textbf{Comparação: ILS Original vs. SmartILS}
+    
+    \vspace{0.2cm}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{lrrrrr}
+    \toprule
+    \textbf{Instância} & \multicolumn{2}{c}{\textbf{Literatura (ILS Original)}} & \multicolumn{2}{c}{\textbf{Proposto (SmartILS)}} & \textbf{Gap FO (\%)} \\
+    \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+     & \textbf{Custo Médio} & \textbf{Tempo (s)} & \textbf{Custo Médio} & \textbf{Tempo (s)} & \\
+    \midrule
+    LTPMSP\_01\_00300 & 1937.40 & 44.06 & 1991.10 & 0.47 & -2.77\% \\
+    LTPMSP\_01\_01200 & 11081.60 & 1200.06 & 11362.80 & 38.24 & -2.54\% \\
+    LTPMSP\_02\_01200 & 9510.00 & 1200.05 & 9528.60 & 27.24 & -0.20\% \\
+    LTPMSP\_03\_04800 & 85037.70 & 4800.51 & 89474.40 & 2314.15 & -5.22\% \\
+    LTPMSP\_06\_09600 & 30102.50 & 9602.01 & 33687.80 & 3600.18 & -11.91\% \\
+    \bottomrule
+    \end{tabular}
+    }
+\end{frame}
+
+\begin{frame}{Resultados Parciais: Análise}
+    \begin{itemize}
+        \item \textbf{Speedup:} O tempo computacional apresentou uma aceleração média de \textbf{4,5 vezes}, caindo da ordem de milhares para dezenas de segundos nas maiores instâncias.
+        \vspace{0.5cm}
+        \item \textbf{Trade-off (Gap):} Houve um ligeiro aumento médio no custo de apenas \textbf{2,65\%} em relação à literatura original. Trata-se de um resultado satisfatório que viabiliza a execução rápida e abre espaço para melhorias futuras em cenários de incerteza.
+    \end{itemize}
+    \vspace{0.5cm}
+    \scriptsize{* Os resultados do SmartILS refletem a média de 10 execuções independentes por instância.}
+\end{frame}
+
+\begin{frame}{Conclusões}
+    \begin{itemize}
+        \item \textbf{Representação e Constrição:} O uso do Inverted JPA provou ser crucial, eliminando buscas inviáveis no espaço de soluções ao embutir as restrições duras na fase de decodificação.
+        \vspace{0.5cm}
+        \item \textbf{Aptidão do SmartILS:} O controle inteligente da intensidade de perturbação otimizou radicalmente a métrica temporal ao evitar buscas exaustivas em vizinhanças infrutíferas.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Trabalhos Futuros (PFC II)}
+    \begin{itemize}
+        \item \textbf{SIM-ILS:} Desenvolver abordagem sim-heurística acoplando simulações de Monte Carlo para modelar a incerteza no tempo das tarefas.
+        \vspace{0.3cm}
+        \item \textbf{Vizinhança Variável (VNS e VND):} Mesclar diferentes movimentos (\textit{swap}, \textit{insertion}, \textit{2-opt}) para intensificar a busca local.
+        \vspace{0.3cm}
+        \item \textbf{Paralelização Heurística:} Utilizar múltiplas \textit{threads} para acelerar a avaliação simultânea dos movimentos na vizinhança.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}[plain]
+    \begin{center}
+        \LARGE \textbf{Muito Obrigado!}
+        
+        \vspace{1cm}
+
+        \Large \textbf{Perguntas?}
+        
+        \vspace{1cm}
+        \normalsize
+        Contato: getuliosantosmendes@gmail.com
+        
+        \vspace{1.5cm}
+        \includegraphics[height=2cm]{Fig/cefetmg.jpg}
+    \end{center}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Referências}
+    \tiny
+    \bibliographystyle{apalike}
+    \bibliography{../Referencias}
+\end{frame}
+
+\end{document}
