@@ -1,7 +1,7 @@
 # Compilador e flags
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -O2 -Isrc
-LDFLAGS =
+CXXFLAGS = -std=c++11 -Wall -O2 -Isrc -fopenmp
+LDFLAGS = -fopenmp
 
 # Nome do executável
 TARGET = manut
@@ -46,7 +46,7 @@ clean:
 	@echo "Limpeza concluída."
 
 # Regra para compilar com símbolos de depuração para profiling
-profile: CXXFLAGS = -std=c++11 -Wall -O2 -g -fno-omit-frame-pointer -Isrc
+profile: CXXFLAGS = -std=c++11 -Wall -O2 -g -fno-omit-frame-pointer -Isrc -fopenmp
 profile: clean $(TARGET)
 
 # Alvos que não representam arquivos

@@ -84,7 +84,7 @@ def count_collected(data_dir, results_dir, instance_name):
     return total
 
 
-def run_instance(binary, instance_path, runs=10, dry_run=False):
+def run_instance(binary, instance_path, runs=10, threads=6, dry_run=False):
     cmd = [
         binary,
         "--algorithm", "SmartILS",
@@ -93,7 +93,8 @@ def run_instance(binary, instance_path, runs=10, dry_run=False):
         "--nivel", "10",
         "--ilsmax", "100",
         "--input", instance_path,
-        "--runs", str(runs)
+        "--runs", str(runs),
+        "--threads", str(threads)
     ]
     print(f"Running: {' '.join(cmd)}")
     if dry_run:
@@ -117,6 +118,7 @@ def main():
     parser.add_argument('--dry-run', action='store_true', help='Only print what would be run')
     parser.add_argument('--exit-on-error', action='store_true', help='Stop on first non-zero exit code')
     parser.add_argument('--target', type=int, default=10, help='Target number of collections per instance')
+    parser.add_argument('--threads', type=int, default=6, help='Number of threads for OpenMP (default: 4)')
     args = parser.parse_args()
 
     data_dir = args.data_dir
@@ -146,7 +148,7 @@ def main():
 
         instance_path = os.path.join(data_dir, name)
         # call manut once with the needed count as an additional argument
-        rc = run_instance(args.binary, instance_path, runs=need, dry_run=args.dry_run)
+        rc = run_instance(args.binary, instance_path, runs=need, threads=args.threads, dry_run=args.dry_run)
         if rc != 0:
             print(f"Instance {name} run (needed={need}) returned exit code {rc}")
             failures += 1

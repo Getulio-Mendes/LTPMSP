@@ -5,9 +5,9 @@
 
 struct AppArgs {
     std::string algorithm = "LateAcceptanceILS";
-    std::string descida = "segmento_randomica";
-    int itermax = 40;
-    int nivel = 15;
+    std::string descida = "VND_randomico";
+    int itermax = 5;
+    int nivel = 7;
     int ilsmax = 70;
     int runs = 1;
     int seed = 1;

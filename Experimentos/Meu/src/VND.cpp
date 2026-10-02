@@ -1,79 +1,83 @@
 #include "VND.h"
-#include "Descida.h"
-#include "Util.h"
+#include "DescidaPar.h"
+#include "jpa_inv_local.h"
 #include <algorithm>
-#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <functional>
+#include <omp.h>
 #include <random>
 #include <string>
 #include <vector>
 
 using namespace std;
 
-// VND (Variable Neighborhood Descent)
-// Alterna entre vizinhanças (Swap randomico e 2-opt randomico).
-// A ordem das vizinhanças é configurável via parâmetro 'ordem':
-//   "swap_2opt"  -> Swap primeiro, 2-opt depois
-//   "2opt_swap"  -> 2-opt primeiro, Swap depois
-//   "aleatorio"  -> Ordem aleatória a cada chamada
+// VND (Variable Neighborhood Descent) — Parallel version with OpenMP
 //
-// Lógica: começa pela primeira vizinhança. Se melhorar, volta para a
-// primeira vizinhança. Se não melhorar, passa para a próxima.
-// Quando todas foram tentadas sem melhora, retorna.
+// Runs both neighborhoods (random swap and random 2-opt) simultaneously
+// using OpenMP parallel sections. Each neighborhood operates on a private
+// copy of the solution. The best improving result is accepted.
+//
+// The 'ordem' parameter is kept for API compatibility but both neighborhoods
+// always run in parallel every iteration.
+//
+// Lógica: em cada iteração, ambas as vizinhanças são executadas em paralelo.
+// Se alguma melhorar, aceita o melhor resultado e repete.
+// Se nenhuma melhorar, retorna.
 
 int VND(int n, vector<int> &s, vector<int> &s_ind, int IterMax, float &t_init,
-        const string &ordem) {
-  // define as vizinhanças como funções (lambdas)
-  auto vizinhanca_swap = [&]() {
-    return descida_randomica_t(n, s, s_ind, IterMax, t_init);
-  };
+        const string &ordem, const JpaContext &ctx) {
 
-  auto vizinhanca_2opt = [&]() {
-    return descida_2opt_randomica_t(n, s, s_ind, IterMax, t_init);
-  };
+  double wall_start = omp_get_wtime();
 
-  // monta o vetor de vizinhanças na ordem desejada
-  vector<function<int()>> vizinhancas;
+  // Split threads: 2 for VND sections, remaining split for inner descent
+  int total_threads = omp_get_max_threads();
+  int inner_threads = max(1, total_threads / 2);
 
-  if (ordem == "2opt_swap") {
-    vizinhancas.push_back(vizinhanca_2opt);
-    vizinhancas.push_back(vizinhanca_swap);
-  } else if (ordem == "aleatorio") {
-    if (rand() % 2 == 0) {
-      vizinhancas.push_back(vizinhanca_swap);
-      vizinhancas.push_back(vizinhanca_2opt);
-    } else {
-      vizinhancas.push_back(vizinhanca_2opt);
-      vizinhancas.push_back(vizinhanca_swap);
-    }
-  } else {
-    // swap_2opt -> Swap primeiro, 2-opt depois
-    vizinhancas.push_back(vizinhanca_swap);
-    vizinhancas.push_back(vizinhanca_2opt);
-  }
+  int fo = jpa_inv_local(n, s, s_ind, 1, ctx);
+  bool improved = true;
 
-  int fo = jpa_inv(n, s, s_ind, 1);
-  int k = 0;
+  while (improved) {
+    improved = false;
 
-  while (k < (int)vizinhancas.size()) {
-    // verifica limite de tempo
-    float duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
-    if (duracao >= 3600)
+    // verifica limite de tempo (wall-clock)
+    double wall_now = omp_get_wtime();
+    if ((wall_now - wall_start) >= 3600)
       break;
 
-    // chama função da vizinhança
-    int fo_novo = vizinhancas[k]();
+    // Private copies for each neighborhood
+    vector<int> s_swap = s, s_2opt = s;
+    vector<int> s_ind_swap = s_ind, s_ind_2opt = s_ind;
+    int fo_swap, fo_2opt;
 
-    if (fo_novo < fo) {
-      // melhorou: volta para a primeira vizinhança
-      fo = fo_novo;
-      k = 0;
-    } else {
-      // não melhorou: tenta a próxima vizinhança
-      k++;
+#pragma omp parallel sections
+    {
+#pragma omp section
+      {
+        fo_swap = descida_randomica_t_par(n, s_swap, s_ind_swap, IterMax,
+                                          wall_start, ctx, inner_threads);
+      }
+
+#pragma omp section
+      {
+        fo_2opt = descida_2opt_randomica_t_par(n, s_2opt, s_ind_2opt, IterMax,
+                                               wall_start, ctx, inner_threads);
+      }
+    }
+
+    // Pick the best result
+    int fo_best = min(fo_swap, fo_2opt);
+    if (fo_best < fo) {
+      fo = fo_best;
+      if (fo_swap <= fo_2opt) {
+        s = s_swap;
+        s_ind = s_ind_swap;
+      } else {
+        s = s_2opt;
+        s_ind = s_ind_2opt;
+      }
+      improved = true;
     }
   }
 

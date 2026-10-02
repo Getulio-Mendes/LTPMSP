@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "jpa_inv_local.h"
 using namespace std;
 
 
@@ -27,7 +28,8 @@ int SmartILS(int n, vector<int> &s, vector<int> &s_ind,
           int ILSmax,
           vector< vector<float> > &atv,
           int & num_iteracoes,
-          const string &descida_tipo);
+          const string &descida_tipo,
+          const JpaContext &ctx);
 
 int LateAcceptanceILS(int n, vector<int> &s, vector<int> &s_ind,
           int Itermax, //maximo de iteracoes na descida randomica
@@ -35,7 +37,17 @@ int LateAcceptanceILS(int n, vector<int> &s, vector<int> &s_ind,
           int ILSmax,
           vector< vector<float> > &atv,
           int & num_iteracoes,
-          const string &descida_tipo);
+          const string &descida_tipo,
+          const JpaContext &ctx);
+
+int SmartLateAcceptanceILS(int n, vector<int> &s, vector<int> &s_ind,
+          int Itermax, //maximo de iteracoes na descida randomica
+          int nivel, // nro de vezes sem melhora em um dado nivel
+          int ILSmax,
+          vector< vector<float> > &atv,
+          int & num_iteracoes,
+          const string &descida_tipo,
+          const JpaContext &ctx);
           
 int simulation (
 		int n, vector<int> &s, vector<int> &s_ind,

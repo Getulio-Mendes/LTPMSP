@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: [-fopenmp, -std=c++11, -IExperimentos/Meu/src]

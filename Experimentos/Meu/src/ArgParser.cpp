@@ -56,11 +56,11 @@ AppArgs parseArgs(int argc, char** argv) {
             std::cout << "Usage: " << argv[0] << " --input <file> [options]\n"
                       << "Note: use only long options in the form --arg value.\n"
                       << "Options:\n"
-                      << "  --algorithm <name>     LateAcceptanceILS (default) or SmartILS\n"
-                      << "  --descida <type>       completa, randomica, or segmento_randomica (default)\n"
-                      << "  --itermax <int>        Default: 40\n"
-                      << "  --nivel <int>          Default: 15\n"
-                      << "  --ilsmax <int>         Default: 70\n"
+                      << "  --algorithm <name>     LateAcceptanceILS (default), SmartILS or SmartLateAcceptanceILS\n"
+                      << "  --descida <type>       VND_randomico (default)\n"
+                      << "  --itermax <int>        Values: 5, 10, 15 (default: 5)\n"
+                      << "  --nivel <int>          Values: 7, 10, 15 (default: 7)\n"
+                      << "  --ilsmax <int>         Values: 70, 100, 150 (default: 70)\n"
                       << "  --runs <int>           Default: 1\n"
                       << "  --seed <int>           Default: 1\n";
             std::exit(0);
