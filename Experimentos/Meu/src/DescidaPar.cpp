@@ -17,9 +17,9 @@ int descida_randomica_t_par(int n, vector<int> &s, vector<int> &s_ind,
                             const JpaContext &ctx, int num_threads) {
   int fo = jpa_inv_local(n, s, s_ind, 1, ctx);
   int iter = 0;
-  double duracao = 0;
+  double duracao = omp_get_wtime() - wall_start;
 
-  while (iter < IterMax && duracao < 3600) {
+  while (iter < IterMax && duracao < n) {
     iter++;
     duracao = omp_get_wtime() - wall_start;
 
@@ -83,9 +83,9 @@ int descida_2opt_randomica_t_par(int n, vector<int> &s, vector<int> &s_ind,
                                  const JpaContext &ctx, int num_threads) {
   int fo = jpa_inv_local(n, s, s_ind, 1, ctx);
   int iter = 0;
-  double duracao = 0;
+  double duracao = omp_get_wtime() - wall_start;
 
-  while (iter < IterMax && duracao < 3600) {
+  while (iter < IterMax && duracao < n) {
     iter++;
     duracao = omp_get_wtime() - wall_start;
 

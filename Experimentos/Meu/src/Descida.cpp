@@ -336,7 +336,7 @@ int descida_2opt(int n, vector<int> &s, vector<int> &s_ind, float &t_init) {
 
     for (int i = 1; i < n - 2; i++) {
       duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
-      if (duracao >= 3600) return fo;
+      if (duracao >= n) return fo;
 
       for (int j = i + 1; j < n - 1; j++) {
         int start = min(i, j);
@@ -362,7 +362,7 @@ int descida_2opt_randomica_t(int n, vector<int> &s, vector<int> &s_ind, int Iter
     int iter = 0;
     float duracao = 0;
     
-    while (iter < IterMax && duracao < 3600) { 
+    while (iter < IterMax && duracao < n) { 
         iter++;
         duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
         
@@ -405,7 +405,7 @@ int descida_2opt_segmento_randomica_t(int n, vector<int> &s, vector<int> &s_ind,
         min_tam = max_tam;
     }
 
-    while (iter < IterMax && duracao < 3600) { 
+    while (iter < IterMax && duracao < n) { 
         iter++;
         duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
         
@@ -425,14 +425,14 @@ int descida_2opt_segmento_randomica_t(int n, vector<int> &s, vector<int> &s_ind,
             melhorou_segmento = false;
             
             duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
-            if (duracao >= 3600) return fo;
+            if (duracao >= n) return fo;
             
             // Loop para avaliação de trocas 2-opt dentro dos limites especificados
             for (int i = start_idx; i <= end_idx - 1; i++) {
                 for (int j = i + 1; j <= end_idx; j++) {
                     
                     duracao = ((clock() - t_init) / CLOCKS_PER_SEC);
-                    if (duracao >= 3600) return fo;
+                    if (duracao >= n) return fo;
                     
                     reverse(s.begin() + i, s.begin() + j + 1);
                     

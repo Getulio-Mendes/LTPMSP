@@ -5,24 +5,6 @@ import subprocess
 import sys
 
 
-SKIP_LIST = {
-    "LTPMSP_01_00150_00148_00120.txt",
-    "LTPMSP_02_00150_00075_00129.txt",
-    "LTPMSP_03_00150_00102_00091.txt",
-    "LTPMSP_03_00300_00112_00177.txt",
-    "LTPMSP_04_00150_00057_00126.txt",
-    "LTPMSP_04_00300_00075_00181.txt",
-    "LTPMSP_04_00600_00077_00215.txt",
-    "LTPMSP_04_01200_00088_00252.txt",
-    "LTPMSP_05_00150_00092_00093.txt",
-    "LTPMSP_05_00300_00121_00162.txt",
-    "LTPMSP_05_00600_00126_00279.txt",
-    "TPMSP_05_01200_00130_00420.txt",
-    "LTPMSP_06_00150_00071_00101.txt",
-    "LTPMSP_06_00300_00119_00176.txt",
-}
-
-
 def find_instances(data_dir):
     files = []
     for name in sorted(os.listdir(data_dir)):
@@ -33,9 +15,6 @@ def find_instances(data_dir):
             continue
         if '_BEST_ILS' in name:
             # ignore the BEST files themselves
-            continue
-        if name in SKIP_LIST:
-            print(f"Skipping (user list): {name}")
             continue
         files.append(name)
     return files
@@ -84,17 +63,16 @@ def count_collected(data_dir, results_dir, instance_name):
     return total
 
 
-def run_instance(binary, instance_path, runs=10, threads=6, dry_run=False):
+def run_instance(binary, instance_path, runs=10, dry_run=False):
     cmd = [
         binary,
-        "--algorithm", "SmartILS",
-        "--descida", "2opt_swap",
-        "--itermax", "5",
+        "--algorithm", "SmartLateAcceptanceILS",
+        "--descida", "VND_randomico",
+        "--itermax", "10",
         "--nivel", "10",
         "--ilsmax", "100",
         "--input", instance_path,
-        "--runs", str(runs),
-        "--threads", str(threads)
+        "--runs", str(runs)
     ]
     print(f"Running: {' '.join(cmd)}")
     if dry_run:
@@ -118,7 +96,6 @@ def main():
     parser.add_argument('--dry-run', action='store_true', help='Only print what would be run')
     parser.add_argument('--exit-on-error', action='store_true', help='Stop on first non-zero exit code')
     parser.add_argument('--target', type=int, default=10, help='Target number of collections per instance')
-    parser.add_argument('--threads', type=int, default=6, help='Number of threads for OpenMP (default: 4)')
     args = parser.parse_args()
 
     data_dir = args.data_dir
@@ -148,7 +125,7 @@ def main():
 
         instance_path = os.path.join(data_dir, name)
         # call manut once with the needed count as an additional argument
-        rc = run_instance(args.binary, instance_path, runs=need, threads=args.threads, dry_run=args.dry_run)
+        rc = run_instance(args.binary, instance_path, runs=need, dry_run=args.dry_run)
         if rc != 0:
             print(f"Instance {name} run (needed={need}) returned exit code {rc}")
             failures += 1

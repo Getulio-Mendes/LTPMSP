@@ -26,10 +26,8 @@ using namespace std;
 // Se alguma melhorar, aceita o melhor resultado e repete.
 // Se nenhuma melhorar, retorna.
 
-int VND(int n, vector<int> &s, vector<int> &s_ind, int IterMax, float &t_init,
+int VND(int n, vector<int> &s, vector<int> &s_ind, int IterMax, double wall_start,
         const string &ordem, const JpaContext &ctx) {
-
-  double wall_start = omp_get_wtime();
 
   // Split threads: 2 for VND sections, remaining split for inner descent
   int total_threads = omp_get_max_threads();
@@ -41,9 +39,9 @@ int VND(int n, vector<int> &s, vector<int> &s_ind, int IterMax, float &t_init,
   while (improved) {
     improved = false;
 
-    // verifica limite de tempo (wall-clock)
+    // verifica limite de tempo global (wall-clock) baseado em n ordens
     double wall_now = omp_get_wtime();
-    if ((wall_now - wall_start) >= 3600)
+    if ((wall_now - wall_start) >= n)
       break;
 
     // Private copies for each neighborhood

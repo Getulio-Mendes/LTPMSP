@@ -13,7 +13,7 @@ using namespace std;
 //
 // With OpenMP parallelism, both neighborhoods run simultaneously
 // (the ordem parameter is kept for API compatibility).
-int VND(int n, vector<int> &s, vector<int> &s_ind, int IterMax, float &t_init,
+int VND(int n, vector<int> &s, vector<int> &s_ind, int IterMax, double wall_start,
         const string &ordem, const JpaContext &ctx);
 
 #endif // _VND_H_

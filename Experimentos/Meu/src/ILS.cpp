@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <omp.h>
 #include <random>
 #include <utility> //funcao swap (para versao anterior a C11 usar <algorithm>)
 
@@ -91,26 +92,26 @@ int SmartILS(
     const JpaContext &ctx) // ctx forwarded to VND for thread-safe evaluation
 {
   vector<int> s_star, s_base;
-  int falhas_no_nivel, nivel_perturbacao, iter, MelhorIter, intermax, duracao;
+  int falhas_no_nivel, nivel_perturbacao, iter, MelhorIter, intermax;
   int fo, fo_2l;
-  float t_init, t_atual;
+  double wall_start, duracao;
 
-  t_init = clock();
+  wall_start = omp_get_wtime();
 
   intermax = n * Itermax / 100;
 
-  fo = VND(n, s, s_ind, intermax, t_init, descida_tipo, ctx);
+  fo = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
   s_star = s;
   s_base = s;
-  iter = MelhorIter = duracao = 0;
+  iter = MelhorIter = 0;
+  duracao = omp_get_wtime() - wall_start;
 
   nivel_perturbacao = 1;
   falhas_no_nivel = 0;
 
-  while (iter - MelhorIter < ILSmax && duracao < 3600) {
+  while (iter - MelhorIter < ILSmax && duracao < n) {
     iter++;
-    t_atual = clock();
-    duracao = ((t_atual - t_init) / CLOCKS_PER_SEC);
+    duracao = omp_get_wtime() - wall_start;
     s = s_base;
 
     int ntrocasMax = nivel_perturbacao + 1;
@@ -127,7 +128,7 @@ int SmartILS(
     }
 
     // fazer busca local VND
-    fo_2l = VND(n, s, s_ind, intermax, t_init, descida_tipo, ctx);
+    fo_2l = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
 
     if (fo_2l < fo) {
       // cout << "FO era: " << fo << " - Agora: " << fo_2l << endl;
@@ -164,18 +165,19 @@ int LateAcceptanceILS(
     const JpaContext &ctx) // ctx forwarded to VND for thread-safe evaluation
 {
   vector<int> s_star, s_base, s_best_in_block;
-  int nivel_perturbacao, iter, MelhorIter, intermax, duracao;
+  int nivel_perturbacao, iter, MelhorIter, intermax;
   int fo, fo_2l, fo_best_in_block;
-  float t_init, t_atual;
+  double wall_start, duracao;
 
-  t_init = clock();
+  wall_start = omp_get_wtime();
 
   intermax = n * Itermax / 100;
 
-  fo = VND(n, s, s_ind, intermax, t_init, descida_tipo, ctx);
+  fo = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
   s_star = s;
   s_base = s;
-  iter = MelhorIter = duracao = 0;
+  iter = MelhorIter = 0;
+  duracao = omp_get_wtime() - wall_start;
 
   nivel_perturbacao = 1;
 
@@ -184,10 +186,9 @@ int LateAcceptanceILS(
   int block_iter = 0;
   fo_best_in_block = INT_MAX;
 
-  while (iter - MelhorIter < ILSmax && duracao < 3600) {
+  while (iter - MelhorIter < ILSmax && duracao < n) {
     iter++;
-    t_atual = clock();
-    duracao = ((t_atual - t_init) / CLOCKS_PER_SEC);
+    duracao = omp_get_wtime() - wall_start;
     s = s_base;
 
     int ntrocasMax = nivel_perturbacao + 1;
@@ -204,7 +205,7 @@ int LateAcceptanceILS(
     }
 
     // fazer busca local VND
-    fo_2l = VND(n, s, s_ind, intermax, t_init, descida_tipo, ctx);
+    fo_2l = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
 
     if (fo_2l < fo) {
       // MELHORA: volta ao comportamento padrão
@@ -259,18 +260,19 @@ int SmartLateAcceptanceILS(
     const JpaContext &ctx) // ctx forwarded to VND for thread-safe evaluation
 {
   vector<int> s_star, s_base, s_best_in_block;
-  int falhas_no_nivel, nivel_perturbacao, iter, MelhorIter, intermax, duracao;
+  int falhas_no_nivel, nivel_perturbacao, iter, MelhorIter, intermax;
   int fo, fo_2l, fo_best_in_block;
-  float t_init, t_atual;
+  double wall_start, duracao;
 
-  t_init = clock();
+  wall_start = omp_get_wtime();
 
   intermax = n * Itermax / 100;
 
-  fo = VND(n, s, s_ind, intermax, t_init, descida_tipo, ctx);
+  fo = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
   s_star = s;
   s_base = s;
-  iter = MelhorIter = duracao = 0;
+  iter = MelhorIter = 0;
+  duracao = omp_get_wtime() - wall_start;
 
   nivel_perturbacao = 1;
   falhas_no_nivel = 0;
@@ -280,10 +282,9 @@ int SmartLateAcceptanceILS(
   int block_iter = 0;
   fo_best_in_block = INT_MAX;
 
-  while (iter - MelhorIter < ILSmax && duracao < 3600) {
+  while (iter - MelhorIter < ILSmax && duracao < n) {
     iter++;
-    t_atual = clock();
-    duracao = ((t_atual - t_init) / CLOCKS_PER_SEC);
+    duracao = omp_get_wtime() - wall_start;
     s = s_base;
 
     int ntrocasMax = nivel_perturbacao + 1;
@@ -300,7 +301,7 @@ int SmartLateAcceptanceILS(
     }
 
     // fazer busca local VND
-    fo_2l = VND(n, s, s_ind, intermax, t_init, descida_tipo, ctx);
+    fo_2l = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
 
     if (fo_2l < fo) {
       // MELHORA: volta ao comportamento padrão

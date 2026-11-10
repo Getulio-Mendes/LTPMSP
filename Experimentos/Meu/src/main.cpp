@@ -317,7 +317,7 @@ int main(int argc, char **argv) {
   for (int i = 0; i < num_exec; i++) {
     s = s_init;
     fo = fo_init;
-    inicio_CPU = clock();
+    double inicio_run = omp_get_wtime();
     if (VarSimHeuristic > 0) {
       fo = SimILS(natv, s, s_ind, ItermaxRandom, NivelILS, ILSmax,
                   VarSimHeuristic, atv, num_interacoes);
@@ -333,13 +333,14 @@ int main(int argc, char **argv) {
                                atv, num_interacoes, descida_tipo, ctx);
       }
     };
-    fim_CPU = clock();
+    double fim_run = omp_get_wtime();
+    float tempo_exec = (float)(fim_run - inicio_run);
     col_ref = 1;
     sort(s_atv.begin(), s_atv.end(), sortcol_decres);
 
     // insere dados da execução no vetor de resultados gerais
     general[i].push_back((float)fo);
-    general[i].push_back((float)(fim_CPU - inicio_CPU) / CLOCKS_PER_SEC);
+    general[i].push_back(tempo_exec);
     general[i].push_back((float)contador);
 
     if (!DISABLE_LOGGING) {
@@ -365,7 +366,6 @@ int main(int argc, char **argv) {
 
     // append a summary line: Nome;fo;tempo;interacao
     // Nome: use the input file name (argv[1] stored in input_file)
-    float tempo_exec = (float)(fim_CPU - inicio_CPU) / CLOCKS_PER_SEC;
     if (!DISABLE_LOGGING)
       append_result_line(solution_file, fo, tempo_exec, num_interacoes,
                          contador);
