@@ -99,8 +99,9 @@ int SmartILS(
   wall_start = omp_get_wtime();
 
   intermax = n * Itermax / 100;
+  DescidaTipo tipo = parseDescidaTipo(descida_tipo);
 
-  fo = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
+  fo = busca_local(n, s, s_ind, intermax, wall_start, tipo, ctx);
   s_star = s;
   s_base = s;
   iter = MelhorIter = 0;
@@ -127,8 +128,8 @@ int SmartILS(
       swap(s[i], s[j]);
     }
 
-    // fazer busca local VND
-    fo_2l = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
+    // fazer busca local escolhida
+    fo_2l = busca_local(n, s, s_ind, intermax, wall_start, tipo, ctx);
 
     if (fo_2l < fo) {
       // cout << "FO era: " << fo << " - Agora: " << fo_2l << endl;
@@ -172,8 +173,9 @@ int LateAcceptanceILS(
   wall_start = omp_get_wtime();
 
   intermax = n * Itermax / 100;
+  DescidaTipo tipo = parseDescidaTipo(descida_tipo);
 
-  fo = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
+  fo = busca_local(n, s, s_ind, intermax, wall_start, tipo, ctx);
   s_star = s;
   s_base = s;
   iter = MelhorIter = 0;
@@ -204,8 +206,8 @@ int LateAcceptanceILS(
       swap(s[i], s[j]);
     }
 
-    // fazer busca local VND
-    fo_2l = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
+    // fazer busca local escolhida
+    fo_2l = busca_local(n, s, s_ind, intermax, wall_start, tipo, ctx);
 
     if (fo_2l < fo) {
       // MELHORA: volta ao comportamento padrão
@@ -267,8 +269,9 @@ int SmartLateAcceptanceILS(
   wall_start = omp_get_wtime();
 
   intermax = n * Itermax / 100;
+  DescidaTipo tipo = parseDescidaTipo(descida_tipo);
 
-  fo = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
+  fo = busca_local(n, s, s_ind, intermax, wall_start, tipo, ctx);
   s_star = s;
   s_base = s;
   iter = MelhorIter = 0;
@@ -300,8 +303,8 @@ int SmartLateAcceptanceILS(
       swap(s[i], s[j]);
     }
 
-    // fazer busca local VND
-    fo_2l = VND(n, s, s_ind, intermax, wall_start, descida_tipo, ctx);
+    // fazer busca local escolhida
+    fo_2l = busca_local(n, s, s_ind, intermax, wall_start, tipo, ctx);
 
     if (fo_2l < fo) {
       // MELHORA: volta ao comportamento padrão

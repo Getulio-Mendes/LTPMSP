@@ -452,3 +452,155 @@ int descida_2opt_segmento_randomica_t(int n, vector<int> &s, vector<int> &s_ind,
     
     return fo;
 }
+
+int descida_randomica_t(int n, vector<int> &s, vector<int> &s_ind, int IterMax, double wall_start)
+{
+    int i, j, iter, aux;
+    int fo, fo_viz;
+    double duracao = omp_get_wtime() - wall_start;
+
+    fo = jpa_inv(n, s, s_ind, 1);
+
+    iter = 0;
+    while (iter < IterMax && duracao < n) {
+        iter++;
+        duracao = omp_get_wtime() - wall_start;
+
+        j = rand() % (n);
+        do {
+            i = rand() % (n);
+        } while (i == j);
+
+        aux = s[i];
+        s[i] = s[j];
+        s[j] = aux;
+
+        fo_viz = jpa_inv(n, s, s_ind, 1);
+
+        if (fo_viz < fo) {
+            iter = 0;
+            fo = fo_viz;
+        } else {
+            aux = s[i];
+            s[i] = s[j];
+            s[j] = aux;
+        }
+    }
+    return fo;
+}
+
+int descida_2opt(int n, vector<int> &s, vector<int> &s_ind, double wall_start) {
+    int fo, fo_viz;
+    double duracao = 0;
+
+    fo = jpa_inv(n, s, s_ind, 1);
+
+    for (int i = 1; i < n - 2; i++) {
+        duracao = omp_get_wtime() - wall_start;
+        if (duracao >= n) return fo;
+
+        for (int j = i + 1; j < n - 1; j++) {
+            int start = min(i, j);
+            int end = max(i, j);
+
+            reverse(s.begin() + start, s.begin() + end);
+
+            fo_viz = jpa_inv(n, s, s_ind, 1);
+
+            if (fo_viz < fo) {
+                fo = fo_viz;
+            } else {
+                reverse(s.begin() + start, s.begin() + end);
+            }
+        }
+    }
+    return fo;
+}
+
+int descida_2opt_randomica_t(int n, vector<int> &s, vector<int> &s_ind, int IterMax, double wall_start) {
+    int fo = jpa_inv(n, s, s_ind, 1);
+    int iter = 0;
+    double duracao = omp_get_wtime() - wall_start;
+
+    while (iter < IterMax && duracao < n) {
+        iter++;
+        duracao = omp_get_wtime() - wall_start;
+
+        // i is in [1, n-3]
+        int i = 1 + rand() % (n - 3);
+        // j is in [i+1, n-2], meaning j is always > i
+        int j = i + 1 + rand() % (n - i - 2);
+
+        // the +1 to include the j-th element)
+        reverse(s.begin() + i, s.begin() + j + 1);
+
+        int fo_viz = jpa_inv(n, s, s_ind, 1);
+
+        if (fo_viz < fo) {
+            fo = fo_viz;
+            iter = 0;
+        } else {
+            reverse(s.begin() + i, s.begin() + j + 1);
+        }
+    }
+
+    return fo;
+}
+
+int descida_2opt_segmento_randomica_t(int n, vector<int> &s, vector<int> &s_ind, int IterMax, double wall_start) {
+    int fo = jpa_inv(n, s, s_ind, 1);
+    int iter = 0;
+    double duracao = omp_get_wtime() - wall_start;
+
+    int min_tam = max(3, (int)(0.1 * (n - 2)));
+    int max_tam = max(min_tam + 1, (int)(0.3 * (n - 2)));
+
+    if (max_tam > n - 2) {
+        max_tam = n - 2;
+    }
+    if (min_tam > max_tam) {
+        min_tam = max_tam;
+    }
+
+    while (iter < IterMax && duracao < n) {
+        iter++;
+        duracao = omp_get_wtime() - wall_start;
+
+        int tam_seg = min_tam + (rand() % (max_tam - min_tam + 1));
+
+        int max_index = n - 1 - tam_seg;
+        if (max_index < 1) continue;
+
+        int start_idx = 1 + rand() % max_index;
+        int end_idx = start_idx + tam_seg - 1;
+
+        bool melhorou_segmento;
+
+        do {
+            melhorou_segmento = false;
+
+            duracao = omp_get_wtime() - wall_start;
+            if (duracao >= n) return fo;
+
+            for (int i = start_idx; i <= end_idx - 1; i++) {
+                for (int j = i + 1; j <= end_idx; j++) {
+                    duracao = omp_get_wtime() - wall_start;
+                    if (duracao >= n) return fo;
+
+                    reverse(s.begin() + i, s.begin() + j + 1);
+
+                    int fo_viz = jpa_inv(n, s, s_ind, 1);
+
+                    if (fo_viz < fo) {
+                        fo = fo_viz;
+                        melhorou_segmento = true;
+                    } else {
+                        reverse(s.begin() + i, s.begin() + j + 1);
+                    }
+                }
+            }
+        } while (melhorou_segmento);
+    }
+
+    return fo;
+}

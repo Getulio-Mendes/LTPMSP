@@ -1,8 +1,24 @@
 #include "ArgParser.h"
-#include <iostream>
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <getopt.h>
+#include <iostream>
+#include <vector>
+
+static bool isValidDescida(const std::string& d) {
+    static const std::vector<std::string> valid_descidas = {
+        "VND_randomico", "vnd_par",
+        "vnd_swap_2opt", "swap_2opt",
+        "vnd_2opt_swap", "2opt_swap",
+        "vnd_aleatorio", "aleatorio",
+        "swap_randomico",
+        "2opt_classico", "completa",
+        "2opt_randomico", "randomica",
+        "2opt_segmento", "segmento_randomica"
+    };
+    return std::find(valid_descidas.begin(), valid_descidas.end(), d) != valid_descidas.end();
+}
 
 AppArgs parseArgs(int argc, char** argv) {
     AppArgs args;
@@ -57,7 +73,8 @@ AppArgs parseArgs(int argc, char** argv) {
                       << "Note: use only long options in the form --arg value.\n"
                       << "Options:\n"
                       << "  --algorithm <name>     LateAcceptanceILS (default), SmartILS or SmartLateAcceptanceILS\n"
-                      << "  --descida <type>       VND_randomico (default)\n"
+                      << "  --descida <type>       VND_randomico / vnd_par (default), vnd_swap_2opt, vnd_2opt_swap,\n"
+                      << "                         vnd_aleatorio, swap_randomico, 2opt_classico, 2opt_randomico, 2opt_segmento\n"
                       << "  --itermax <int>        Values: 5, 10, 15 (default: 5)\n"
                       << "  --nivel <int>          Values: 7, 10, 15 (default: 7)\n"
                       << "  --ilsmax <int>         Values: 70, 100, 150 (default: 70)\n"
@@ -80,6 +97,13 @@ AppArgs parseArgs(int argc, char** argv) {
 
     if (args.input_file.empty()) {
         std::cerr << "Error: Input file is required.\n";
+        std::exit(1);
+    }
+
+    if (!isValidDescida(args.descida)) {
+        std::cerr << "Error: Invalid --descida '" << args.descida << "'.\n"
+                  << "Valid values: VND_randomico, vnd_par, vnd_swap_2opt, vnd_2opt_swap, vnd_aleatorio, "
+                  << "swap_randomico, 2opt_classico, 2opt_randomico, 2opt_segmento.\n";
         std::exit(1);
     }
 
