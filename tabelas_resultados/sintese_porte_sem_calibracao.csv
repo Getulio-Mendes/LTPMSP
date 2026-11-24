@@ -1,0 +1,5 @@
+Porte,Instancias,Melhor<=Orig,Melhor<Orig,Medio<=Orig,Medio<Orig,Pior<=Orig,Pior<Orig,Gap_medio_%,Speedup_medio,Melhor<=BKV_Lit,Novos_BKV,RPD_GRASP_%,RPD_ILS_%,RPD_Orig_%,RPD_Atual_%
+Médio,17,17,2,13,2,16,2,0.0204,11.4605,17,2,0.922,0.094,0.0854,0.0648
+Grande,15,11,5,9,7,10,5,-0.0449,5.0627,9,6,8.4914,1.5279,0.5271,0.5714
+Extra Grande,2,2,1,2,2,2,2,0.5789,1.0004,2,2,25.0941,8.4291,1.6488,1.0595
+Total,34,30,8,24,11,28,9,0.0245,8.0226,28,10,5.6833,1.2169,0.3723,0.3468

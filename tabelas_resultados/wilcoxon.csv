@@ -1,0 +1,6 @@
+Comparacao,Total_inst,Empates,N_efetivo,Favor_Atual,Favor_Orig,W_pos,W_neg,W_min,Z,p_assintotico,p_exato,Significativo_5%
+FO Medio - Conjunto completo (37 inst.),37,13,24,14,10,197,103,103,1.3429,0.1793,0.1875,Nao
+FO Medio - Sem calibracao (34 inst.),34,13,21,11,10,131,100,100,0.5387,0.5901,0.6091,Nao
+FO Medio - Maiores escalas N >= 4800 (9 inst.),9,0,9,8,1,43,2,2,2.4286,0.01516,0.01172,Sim
+FO Medio - Maiores escalas s/ calibracao N >= 4800 (6 inst.),6,0,6,5,1,19,2,2,1.7821,0.07474,0.09375,Nao
+Tempo Medio - Conjunto completo (37 inst.),37,6,31,31,0,496,0,0,4.8599,1.174e-06,9.313e-10,Sim
